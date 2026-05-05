@@ -12,38 +12,7 @@ const CHECKLIST = [
   { id: "parking", label: "Easy Parking", icon: "🅿️" },
 ];
 
-const SEED_DATA = [
-  {
-    id: 1, name: "Mulholland Overlook", state: "California", city: "Los Angeles",
-    lat: 34.12, lng: -118.41, notes: "Incredible city lights at night. Very quiet after midnight.",
-    checks: { view: true, privacy: true, nocops: true, clean: true, accessible: false, nighttime: true, cellsignal: true, parking: true },
-    votes: 42,
-  },
-  {
-    id: 2, name: "Point Reyes Trailhead Lot", state: "California", city: "Marin County",
-    lat: 38.04, lng: -122.87, notes: "Very secluded. Bring a blanket. Zero foot traffic after 8pm.",
-    checks: { view: true, privacy: true, nocops: true, clean: true, accessible: true, nighttime: false, cellsignal: false, parking: true },
-    votes: 31,
-  },
-  {
-    id: 3, name: "Runyon Canyon Upper Lot", state: "California", city: "Los Angeles",
-    lat: 34.10, lng: -118.35, notes: "Best on weeknights. Avoid weekends — too many hikers.",
-    checks: { view: true, privacy: false, nocops: true, clean: true, accessible: true, nighttime: true, cellsignal: true, parking: false },
-    votes: 27,
-  },
-  {
-    id: 4, name: "Twin Peaks Summit", state: "California", city: "San Francisco",
-    lat: 37.75, lng: -122.45, notes: "360 city view. Cars park here all night, very normal.",
-    checks: { view: true, privacy: false, nocops: true, clean: false, accessible: true, nighttime: true, cellsignal: true, parking: true },
-    votes: 55,
-  },
-  {
-    id: 5, name: "Griffith Park Backroad", state: "California", city: "Los Angeles",
-    lat: 34.13, lng: -118.30, notes: "Off the main road. Completely dark. Bring bug spray.",
-    checks: { view: false, privacy: true, nocops: true, clean: true, accessible: false, nighttime: true, cellsignal: false, parking: true },
-    votes: 19,
-  },
-];
+
 
 const scoreSpot = (checks) => Object.values(checks).filter(Boolean).length;
 
@@ -56,14 +25,14 @@ const EMPTY_FORM = {
 
 export default function App() {
 const [spots, setSpots] = useState([]);
-const [loading, setLoading] = useState(true);
+const [, setLoading] = useState(true);
 
 useEffect(() => {
   fetchSpots();
 }, []);
 
 const fetchSpots = async () => {
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("spots")
     .select("*")
     .order("votes", { ascending: false });
@@ -125,7 +94,7 @@ const fetchSpots = async () => {
 
   const submitSpot = async () => {
   if (!form.name || !form.state || !form.city) return;
-  const { data, error } = await supabase
+  const { data } = await supabase
     .from("spots")
     .insert([{
       name: form.name,
