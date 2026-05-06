@@ -200,7 +200,7 @@ const upvote = async (id) => {
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span style={{ fontSize: 22 }}>🗺️</span>
           <div>
-            <div style={{ fontWeight: 900, fontSize: 16, letterSpacing: 2, color: "#f97316" }}>SPOTMAP</div>
+            <div style={{ fontWeight: 900, fontSize: 16, letterSpacing: 2, color: "#f97316" }}>NUTNAV</div>
             <div style={{ fontSize: 9, color: "#555", letterSpacing: 3 }}>CROWD-SOURCED LOCATIONS</div>
           </div>
         </div>
