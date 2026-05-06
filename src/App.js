@@ -20,6 +20,7 @@ const VIEWS = { MAP: "map", STATE: "state", CITY: "city", SPOT: "spot", ADD: "ad
 
 const EMPTY_FORM = {
   name: "", state: "", city: "", notes: "",
+  lat: null, lng: null,
   checks: Object.fromEntries(CHECKLIST.map(c => [c.id, false])),
 };
 
@@ -101,8 +102,8 @@ const fetchSpots = async () => {
       state: form.state,
       city: form.city,
       notes: form.notes,
-      lat: 0,
-      lng: 0,
+      lat: form.lat || 0,
+      lng: form.lng || 0,
       votes: 1,
       view: form.checks.view,
       privacy: form.checks.privacy,
@@ -218,10 +219,15 @@ const upvote = async (id) => {
           }}>+ ADD SPOT</button>
         </div>
       </div>
-
-<div style={{ margin: "0" }}>
-        <MapView spots={spots} onMapClick={(lat, lng) => console.log(lat, lng)} />
-      </div>
+{view !== VIEWS.ADD && (
+  <div style={{ margin: "0" }}>
+    <MapView 
+  spots={spots} 
+  onMapClick={(lat, lng) => console.log(lat, lng)}
+  focusSpot={selected.spot ? spots.find(s => s.id === selected.spot) : null}
+/>
+  </div>
+)}
       <div style={{ maxWidth: 600, margin: "0 auto", padding: "20px 16px" }}>
 
         {/* Search */}
@@ -420,7 +426,18 @@ const upvote = async (id) => {
                 <div style={{ color: "#888", fontSize: 12, marginTop: 6 }}>Redirecting...</div>
               </div>
             ) : (
-              <>
+<>
+    <div style={{ marginBottom: 16, borderRadius: 10, overflow: "hidden", border: "1px solid rgba(255,255,255,0.1)" }}>
+      <div style={{ fontSize: 10, color: "#f97316", letterSpacing: 2, padding: "8px 12px", background: "rgba(249,115,22,0.1)" }}>
+        {form.lat ? `📍 PIN DROPPED — ${form.lat.toFixed(4)}, ${form.lng.toFixed(4)}` : "📍 CLICK MAP TO DROP A PIN"}
+      </div>
+      <MapView
+        spots={[]}
+        isPinMode={true}
+        pinnedLocation={form.lat ? { lat: form.lat, lng: form.lng } : null}
+        onMapClick={(lat, lng) => setForm(prev => ({ ...prev, lat, lng }))}
+      />
+    </div>
                 {[
                   { key: "name", label: "Spot Name", placeholder: "e.g. Mulholland Overlook" },
                   { key: "state", label: "State", placeholder: "e.g. California" },
