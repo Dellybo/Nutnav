@@ -202,6 +202,9 @@ const upvote = async (id) => {
           <div>
             <div style={{ fontWeight: 900, fontSize: 16, letterSpacing: 2, color: "#f97316" }}>NUTNAV</div>
             <div style={{ fontSize: 9, color: "#555", letterSpacing: 3 }}>CROWD-SOURCED LOCATIONS</div>
+            <a href="https://github.com/Dellybo/Nutnav" target="_blank" rel="noreferrer" style={{ fontSize: 9, color: "#555", letterSpacing: 1, textDecoration: "none" }}>
+  github.com/Dellybo/Nutnav
+</a>
           </div>
         </div>
         <div style={{ display: "flex", gap: 8 }}>
