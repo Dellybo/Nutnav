@@ -191,11 +191,13 @@ const upvote = async (id) => {
       {/* Header */}
       <div style={{
         borderBottom: "1px solid rgba(255,255,255,0.07)",
-        padding: "16px 20px",
+        padding: "12px 16px",
         display: "flex", alignItems: "center", justifyContent: "space-between",
         background: "rgba(255,255,255,0.02)",
         position: "sticky", top: 0, zIndex: 100,
         backdropFilter: "blur(10px)",
+        flexWrap: "wrap",
+        gap: 8,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <span style={{ fontSize: 22 }}>🗺️</span>
