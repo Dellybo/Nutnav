@@ -440,7 +440,24 @@ const upvote = async (id) => {
         spots={[]}
         isPinMode={true}
         pinnedLocation={form.lat ? { lat: form.lat, lng: form.lng } : null}
-        onMapClick={(lat, lng) => setForm(prev => ({ ...prev, lat, lng }))}
+        onMapClick={async (lat, lng) => {
+  setForm(prev => ({ ...prev, lat, lng }));
+  try {
+    const res = await fetch(
+      `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${process.env.REACT_APP_GEOCODING_KEY}`
+    );
+    const data = await res.json();console.log("Geocode response:", data);
+    if (data.results && data.results[0]) {
+      const components = data.results[0].address_components;
+      const city = components.find(c => c.types.includes("locality"))?.long_name || 
+                   components.find(c => c.types.includes("sublocality"))?.long_name || "";
+      const state = components.find(c => c.types.includes("administrative_area_level_1"))?.long_name || "";
+      setForm(prev => ({ ...prev, lat, lng, city, state }));
+    }
+  } catch (e) {
+    console.log("Geocode error", e);
+  }
+}}
       />
     </div>
                 {[
