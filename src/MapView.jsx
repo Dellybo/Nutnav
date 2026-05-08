@@ -63,6 +63,19 @@ export default function MapView({ spots, onMapClick, isPinMode = false, pinnedLo
               <strong>{active.name}</strong>
               <div style={{ fontSize: 11, color: "#aaa", marginTop: 4 }}>{active.city}, {active.state}</div>
               <div style={{ fontSize: 11, color: "#888", marginTop: 4 }}>{active.notes}</div>
+              {active.lat && active.lat !== 0 && (
+  <a
+    href={`https://www.google.com/maps/dir/?api=1&destination=${active.lat},${active.lng}`}
+    target="_blank"
+    rel="noreferrer"
+    style={{ 
+      display: "block", marginTop: 8, color: "#22c55e", 
+      fontSize: 11, fontWeight: 700, textDecoration: "none" 
+    }}
+  >
+    🗺️ Get Directions
+  </a>
+)}
             </div>
           </InfoWindow>
         )}

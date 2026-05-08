@@ -400,7 +400,25 @@ const upvote = async (id) => {
                     </div>
                   ))}
                 </div>
-
+{spot.lat && spot.lat !== 0 && (
+  <a
+    href={`https://www.google.com/maps/dir/?api=1&destination=${spot.lat},${spot.lng}`}
+    target="_blank"
+    rel="noreferrer"
+    style={{
+      display: "block", width: "100%", padding: "12px",
+      background: "rgba(34,197,94,0.15)",
+      border: "1px solid rgba(34,197,94,0.3)",
+      borderRadius: 10, color: "#22c55e",
+      fontWeight: 900, fontSize: 14, cursor: "pointer",
+      fontFamily: "'Courier New', monospace", letterSpacing: 1,
+      textDecoration: "none", textAlign: "center",
+      marginBottom: 10,
+    }}
+  >
+    🗺️ GET DIRECTIONS
+  </a>
+)}
                 <button onClick={() => upvote(spot.id)} style={{
                   width: "100%", padding: "12px",
                   background: "linear-gradient(135deg, #f97316, #ea580c)",
