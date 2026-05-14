@@ -51,6 +51,7 @@ const fetchSpots = async () => {
   const [selected, setSelected] = useState({ state: null, city: null, spot: null });
   const [form, setForm] = useState(EMPTY_FORM);
   const [submitted, setSubmitted] = useState(false);
+  const [photoFile, setPhotoFile] = useState(null); 
   const [search, setSearch] = useState("");
 
   const states = useMemo(() => {
@@ -95,6 +96,23 @@ const fetchSpots = async () => {
 
   const submitSpot = async () => {
   if (!form.name || !form.state || !form.city) return;
+
+  let photo_url = null;
+
+  if (photoFile) {
+    const fileExt = photoFile.name.split(".").pop();
+    const fileName = `${Date.now()}.${fileExt}`;
+    const { error: uploadError } = await supabase.storage
+      .from("spot-photos")
+      .upload(fileName, photoFile);
+    if (!uploadError) {
+      const { data: urlData } = supabase.storage
+        .from("spot-photos")
+        .getPublicUrl(fileName);
+      photo_url = urlData.publicUrl;
+    }
+  }
+
   const { data } = await supabase
     .from("spots")
     .insert([{
@@ -113,11 +131,14 @@ const fetchSpots = async () => {
       nighttime: form.checks.nighttime,
       cellsignal: form.checks.cellsignal,
       parking: form.checks.parking,
+      photo_url,
     }])
     .select();
+
   if (data) {
     fetchSpots();
     setForm(EMPTY_FORM);
+    setPhotoFile(null);
     setSubmitted(true);
     setTimeout(() => { setSubmitted(false); setView(VIEWS.STATE); }, 2000);
   }
@@ -518,7 +539,26 @@ const upvote = async (id) => {
                     }}
                   />
                 </div>
-
+                <div style={{ marginBottom: 14 }}>
+  <div style={{ fontSize: 10, color: "#666", letterSpacing: 2, marginBottom: 6 }}>PHOTO (OPTIONAL)</div>
+  <label style={{
+    display: "flex", alignItems: "center", gap: 10,
+    padding: "10px 14px", borderRadius: 8, cursor: "pointer",
+    background: "rgba(255,255,255,0.04)",
+    border: `1px solid ${photoFile ? "rgba(249,115,22,0.4)" : "rgba(255,255,255,0.1)"}`,
+  }}>
+    <span style={{ fontSize: 18 }}>📷</span>
+    <span style={{ fontSize: 12, color: photoFile ? "#f97316" : "#666" }}>
+      {photoFile ? photoFile.name : "Tap to upload a photo"}
+    </span>
+    <input
+      type="file"
+      accept="image/*"
+      style={{ display: "none" }}
+      onChange={e => setPhotoFile(e.target.files[0] || null)}
+    />
+  </label>
+  </div>
                 <div style={{ fontSize: 10, color: "#666", letterSpacing: 2, marginBottom: 12 }}>CHECKLIST — CHECK ALL THAT APPLY</div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8, marginBottom: 24 }}>
                   {CHECKLIST.map(c => (
