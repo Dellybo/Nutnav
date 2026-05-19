@@ -70,5 +70,5 @@ This section has moved here: [https://facebook.github.io/create-react-app/docs/d
 This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
 
 ## Support
-If you create a NutNav-inspired token, send some love ❤️
+If like this app, send some love ❤️
 SOL: C1tW9KTZg9sydy7nkWzi9ETASnh3GZzgMrrXZyJ1geqn
