@@ -53,6 +53,9 @@ const fetchSpots = async () => {
   const [submitted, setSubmitted] = useState(false);
   const [photoFile, setPhotoFile] = useState(null); 
   const [search, setSearch] = useState("");
+  const [comments, setComments] = useState([]);
+  const [commentText, setCommentText] = useState("");
+  const [commentName, setCommentName] = useState("");
 
   const states = useMemo(() => {
     const map = {};
@@ -142,6 +145,25 @@ const fetchSpots = async () => {
     setSubmitted(true);
     setTimeout(() => { setSubmitted(false); setView(VIEWS.STATE); }, 2000);
   }
+};
+const fetchComments = async (spotId) => {
+  const { data } = await supabase
+    .from("comments")
+    .select("*")
+    .eq("spot_id", spotId)
+    .order("created_at", { ascending: true });
+  if (data) setComments(data);
+};
+
+const submitComment = async (spotId) => {
+  if (!commentText.trim()) return;
+  await supabase.from("comments").insert([{
+    spot_id: spotId,
+    username: commentName.trim() || "Anonymous",
+    body: commentText.trim(),
+  }]);
+  setCommentText("");
+  fetchComments(spotId);
 };
 const upvote = async (id) => {
   const ipRes = await fetch("https://api.ipify.org?format=json");
@@ -356,7 +378,7 @@ const upvote = async (id) => {
           <>
             <BackBtn label={selected.state} onClick={() => { setSelected(prev => ({ ...prev, city: null })); setView(VIEWS.CITY); }} />
             <div style={{ marginBottom: 4, fontSize: 20, fontWeight: 900 }}>{selected.city}</div>
-            <div style={{ fontSize: 10, color: "#555", marginBottom: 16, letterSpacing: 3 }}>
+            <div style={{ fontSize: 14, color: "#555", marginBottom: 16, letterSpacing: 3 }}>
               {spotsInCity.length} SPOTS RANKED
             </div>
             {spotsInCity.map((s, i) => (
@@ -371,7 +393,7 @@ const upvote = async (id) => {
                       <span style={{ fontWeight: 700, fontSize: 14 }}>{s.name}</span>
                     </div>
                     <div style={{ marginTop: 8 }}><ScoreBar score={scoreSpot(s.checks)} /></div>
-                    <div style={{ fontSize: 11, color: "#777", marginTop: 6 }}>{s.notes}</div>
+                    <div style={{ fontSize: 14, color: "#777", marginTop: 6 }}>{s.notes}</div>
                   </div>
                   <div style={{ marginLeft: 12, textAlign: "right" }}>
                     <div style={{ fontSize: 16, fontWeight: 900, color: "#f97316" }}>{s.votes}</div>
@@ -387,6 +409,7 @@ const upvote = async (id) => {
         {view === VIEWS.SPOT && selected.spot && (() => {
           const spot = spots.find(s => s.id === selected.spot);
           if (!spot) return null;
+          if (comments.length === 0 || comments[0]?.spot_id !== spot.id) fetchComments(spot.id);
           return (
             <>
               <BackBtn label={selected.city} onClick={() => setSelected(prev => ({ ...prev, spot: null }))} />
@@ -403,7 +426,7 @@ const upvote = async (id) => {
                   <Badge color="#22c55e">{scoreSpot(spot.checks)}/8 score</Badge>
                 </div>
 
-                <div style={{ fontSize: 13, color: "#aaa", lineHeight: 1.6, marginBottom: 20, fontStyle: "italic" }}>
+                <div style={{ fontSize: 16, color: "#aaa", lineHeight: 1.6, marginBottom: 20, fontStyle: "italic" }}>
                   "{spot.notes}"
                 </div>
 
@@ -440,6 +463,70 @@ const upvote = async (id) => {
     🗺️ GET DIRECTIONS
   </a>
 )}
+                {/* COMMENTS */}
+<div style={{ marginTop: 24, marginBottom: 16 }}>
+  <div style={{ fontSize: 14, color: "#555", letterSpacing: 2, marginBottom: 12 }}>COMMENTS</div>
+
+  {comments.length === 0 && (
+    <div style={{ fontSize: 15, color: "#555", marginBottom: 12 }}>No comments yet. Be the first!</div>
+  )}
+
+  {comments.map(c => (
+    <div key={c.id} style={{
+      background: "rgba(255,255,255,0.03)",
+      border: "1px solid rgba(255,255,255,0.07)",
+      borderRadius: 8, padding: "10px 14px", marginBottom: 8,
+    }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+        <span style={{ fontSize: 12, fontWeight: 700, color: "#f97316" }}>{c.username}</span>
+        <span style={{ fontSize: 10, color: "#555" }}>
+          {new Date(c.created_at).toLocaleDateString()}
+        </span>
+      </div>
+      <div style={{ fontSize: 13, color: "#ccc" }}>{c.body}</div>
+    </div>
+  ))}
+
+  <div style={{ marginTop: 12 }}>
+    <input
+      placeholder="Your name (or leave blank for Anonymous)"
+      value={commentName}
+      onChange={e => setCommentName(e.target.value)}
+      style={{
+        width: "100%", boxSizing: "border-box",
+        background: "rgba(255,255,255,0.05)",
+        border: "1px solid rgba(255,255,255,0.1)",
+        borderRadius: 8, padding: "8px 12px", marginBottom: 8,
+        color: "#e8e8e8", fontSize: 12, outline: "none",
+        fontFamily: "'Courier New', monospace",
+      }}
+    />
+    <textarea
+      placeholder="Leave a comment..."
+      value={commentText}
+      onChange={e => setCommentText(e.target.value)}
+      rows={2}
+      style={{
+        width: "100%", boxSizing: "border-box",
+        background: "rgba(255,255,255,0.05)",
+        border: "1px solid rgba(255,255,255,0.1)",
+        borderRadius: 8, padding: "8px 12px", marginBottom: 8,
+        color: "#e8e8e8", fontSize: 12, outline: "none", resize: "vertical",
+        fontFamily: "'Courier New', monospace",
+      }}
+    />
+    <button onClick={() => submitComment(spot.id)} style={{
+      width: "100%", padding: "10px",
+      background: commentText.trim() ? "rgba(249,115,22,0.2)" : "rgba(255,255,255,0.03)",
+      border: `1px solid ${commentText.trim() ? "rgba(249,115,22,0.4)" : "rgba(255,255,255,0.1)"}`,
+      borderRadius: 8, color: commentText.trim() ? "#f97316" : "#555",
+      fontWeight: 700, fontSize: 12, cursor: commentText.trim() ? "pointer" : "default",
+      fontFamily: "'Courier New', monospace", marginBottom: 16,
+    }}>
+      POST COMMENT
+    </button>
+  </div>
+</div>
                 <button onClick={() => upvote(spot.id)} style={{
                   width: "100%", padding: "12px",
                   background: "linear-gradient(135deg, #f97316, #ea580c)",
