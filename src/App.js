@@ -56,6 +56,10 @@ const fetchSpots = async () => {
   const [comments, setComments] = useState([]);
   const [commentText, setCommentText] = useState("");
   const [commentName, setCommentName] = useState("");
+  
+  useEffect(() => {
+    if (selected.spot) fetchComments(selected.spot);
+  }, [selected.spot]);
 
   const states = useMemo(() => {
     const map = {};
@@ -157,13 +161,15 @@ const fetchComments = async (spotId) => {
 
 const submitComment = async (spotId) => {
   if (!commentText.trim()) return;
-  await supabase.from("comments").insert([{
+  const { error } = await supabase.from("comments").insert([{
     spot_id: spotId,
     username: commentName.trim() || "Anonymous",
     body: commentText.trim(),
   }]);
-  setCommentText("");
-  fetchComments(spotId);
+  if (!error) {
+    setCommentText("");
+    fetchComments(spotId);
+  }
 };
 const upvote = async (id) => {
   const ipRes = await fetch("https://api.ipify.org?format=json");
@@ -409,7 +415,7 @@ const upvote = async (id) => {
         {view === VIEWS.SPOT && selected.spot && (() => {
           const spot = spots.find(s => s.id === selected.spot);
           if (!spot) return null;
-          if (comments.length === 0 || comments[0]?.spot_id !== spot.id) fetchComments(spot.id);
+          // removed inline fetch
           return (
             <>
               <BackBtn label={selected.city} onClick={() => setSelected(prev => ({ ...prev, spot: null }))} />
@@ -463,7 +469,16 @@ const upvote = async (id) => {
     🗺️ GET DIRECTIONS
   </a>
 )}
-                {/* COMMENTS */}
+                <button onClick={() => upvote(spot.id)} style={{
+                  width: "100%", padding: "12px",
+                  background: "linear-gradient(135deg, #f97316, #ea580c)",
+                  border: "none", borderRadius: 10, color: "white",
+                  fontWeight: 900, fontSize: 14, cursor: "pointer",
+                  fontFamily: "'Courier New', monospace", letterSpacing: 1,
+                }}>
+                  👍 UPVOTE THIS SPOT ({spot.votes})
+                </button>
+                                {/* COMMENTS */}
 <div style={{ marginTop: 24, marginBottom: 16 }}>
   <div style={{ fontSize: 14, color: "#555", letterSpacing: 2, marginBottom: 12 }}>COMMENTS</div>
 
@@ -525,17 +540,8 @@ const upvote = async (id) => {
     }}>
       POST COMMENT
     </button>
-  </div>
+    </div>
 </div>
-                <button onClick={() => upvote(spot.id)} style={{
-                  width: "100%", padding: "12px",
-                  background: "linear-gradient(135deg, #f97316, #ea580c)",
-                  border: "none", borderRadius: 10, color: "white",
-                  fontWeight: 900, fontSize: 14, cursor: "pointer",
-                  fontFamily: "'Courier New', monospace", letterSpacing: 1,
-                }}>
-                  👍 UPVOTE THIS SPOT ({spot.votes})
-                </button>
               </div>
             </>
           );
